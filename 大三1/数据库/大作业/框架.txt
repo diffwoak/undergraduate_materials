@@ -1,0 +1,13 @@
+AdminLTE english pass
+Vue_Element-Admin ->若依后台管理系统
+ant-design-pro
+ruoyi-pro 功能太多
+
+
+都需要学很多东西
+(1) 若依
+(2) layui
+(3) mysql + python		github项目
+(4) 导入jar包那个视频 好像mysql server也要自己再下载一个
+(5) 大作业攻略 不是网站
+

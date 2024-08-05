@@ -1,0 +1,11 @@
+﻿cl : 命令行  warning D9025: 正在重写“/openmp”(用“/openmp:llvm”)
+  main.cpp
+C:\Users\asus\Desktop\计算机体系结构\parallel_bfs\parallel_bfs\main.cpp(11,20): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
+C:\Users\asus\Desktop\计算机体系结构\parallel_bfs\parallel_bfs\main.cpp(41,19): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\asus\Desktop\计算机体系结构\parallel_bfs\parallel_bfs\main.cpp(62,19): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\asus\Desktop\计算机体系结构\parallel_bfs\parallel_bfs\main.cpp(70,17): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\asus\Desktop\计算机体系结构\parallel_bfs\parallel_bfs\main.cpp(100,19): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\asus\Desktop\计算机体系结构\parallel_bfs\parallel_bfs\main.cpp(110,17): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\asus\Desktop\计算机体系结构\parallel_bfs\parallel_bfs\main.cpp(141,41): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\asus\Desktop\计算机体系结构\parallel_bfs\parallel_bfs\main.cpp(152,26): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+  parallel_bfs.vcxproj -> C:\Users\asus\Desktop\计算机体系结构\parallel_bfs\x64\Debug\parallel_bfs.exe

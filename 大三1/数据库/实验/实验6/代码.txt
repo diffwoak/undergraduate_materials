@@ -1,0 +1,64 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<winsock.h>
+#include<mysql.h>
+MYSQL mysql;
+int create_sc_table();
+int insert_rows_into_sc_table();
+main(int argc, char** argv, char** envp) {
+	int num = 0;
+	char fu[2];
+	mysql_init(&mysql);
+
+	if (mysql_real_connect(&mysql, "localhost", "root", "root", "xxgl", 3306, 0, 0)) {
+		printf("1--创建表   2--插入表\n");
+		printf("\n");
+		fu[0] = '0';
+		scanf("%s", &fu);
+		if (fu[0] == '0')exit(0);
+		if (fu[0] == '1') create_sc_table();
+		if (fu[0] == '2') insert_rows_into_sc_table();
+	}
+	else {
+		printf("数据库不存在！");
+	}
+	mysql_close(&mysql);
+	return 0;
+}
+
+int create_sc_table() {
+	char yn[2];
+	char tname[21] = "xxxxxxxxxxxx";
+	//if (mysql_list_table(&mysql, "sc")) {}
+	if (mysql_query(&mysql, "create table sc()engine=innodb;") == 0) {
+		printf("create table sc successfully!%d\n\n");
+	}
+	else {printf("ERROR:create table sc%d\n\n");}
+	if (mysql_query(&mysql, "insert into sc values(),();") == 0) {
+		printf("Success to insert rows to sc table!%d\n\n");
+	}
+	else { printf("ERROR:insert row%d\n\n"); }
+	return (0);
+}
+int insert_rows_into_sc_table() {
+	char isno[] = "95002";
+	char icno[] = "";
+	char igrade[] = "";
+	char strquery[100] = "insert into sc(sno,cno,grade) value('";
+	char yn[2];
+	while (1) {
+		printf("Please input sno(eg:95001):"); scanf("%s", isno); strcat(strquery, isno);
+		strcat(strquery, "','");
+		printf("Please input sco(eg:95001):"); scanf("%s", icno); strcat(strquery, icno);
+		strcat(strquery, "','");
+		printf("Please input grade(eg:95001):"); scanf("%s", igrade); strcat(strquery, igrade);
+		strcat(strquery, "','");
+		if (mysql_query(&mysql, strquery) == 0) {printf("execute successfully!%d\n\n");}
+		else { printf("ERROR:execute%d\n"); }
+		printf("Insert again? (y--yes,n--no)");
+		scanf("%s", &yn);
+		if (yn[0] == 'y' || yn[0] == 'Y') { continue; }
+		else break;
+	}
+	return (0);
+}

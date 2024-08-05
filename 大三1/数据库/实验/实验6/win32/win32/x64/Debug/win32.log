@@ -1,0 +1,26 @@
+﻿  main.cpp
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(37,13): warning C4473: “printf”: 没有为格式字符串传递足够的参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(37,13): message : 占位符和其参数预计 1 可变参数，但提供的却是 0 参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(37,13): message : 缺失的可变参数 1 为格式字符串“%d”所需
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(39,19): warning C4473: “printf”: 没有为格式字符串传递足够的参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(39,19): message : 占位符和其参数预计 1 可变参数，但提供的却是 0 参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(39,19): message : 缺失的可变参数 1 为格式字符串“%d”所需
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(45,10): warning C4473: “printf”: 没有为格式字符串传递足够的参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(45,10): message : 占位符和其参数预计 1 可变参数，但提供的却是 0 参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(45,10): message : 缺失的可变参数 1 为格式字符串“%d”所需
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(46,17): warning C4473: “printf”: 没有为格式字符串传递足够的参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(46,17): message : 占位符和其参数预计 1 可变参数，但提供的却是 0 参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(46,17): message : 缺失的可变参数 1 为格式字符串“%d”所需
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(49,10): warning C4473: “printf”: 没有为格式字符串传递足够的参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(49,10): message : 占位符和其参数预计 1 可变参数，但提供的却是 0 参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(49,10): message : 缺失的可变参数 1 为格式字符串“%d”所需
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(50,17): warning C4473: “printf”: 没有为格式字符串传递足够的参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(50,17): message : 占位符和其参数预计 1 可变参数，但提供的却是 0 参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(50,17): message : 缺失的可变参数 1 为格式字符串“%d”所需
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(68,52): warning C4473: “printf”: 没有为格式字符串传递足够的参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(68,52): message : 占位符和其参数预计 1 可变参数，但提供的却是 0 参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(68,52): message : 缺失的可变参数 1 为格式字符串“%d”所需
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(69,17): warning C4473: “printf”: 没有为格式字符串传递足够的参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(69,17): message : 占位符和其参数预计 1 可变参数，但提供的却是 0 参数
+C:\Users\asus\Desktop\数据库实验\实验6\main.cpp(69,17): message : 缺失的可变参数 1 为格式字符串“%d”所需
+  win32.vcxproj -> C:\Users\asus\Desktop\数据库实验\实验6\win32\x64\Debug\win32.exe
