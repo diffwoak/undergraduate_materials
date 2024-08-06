@@ -1,0 +1,879 @@
+import exceptions.*;
+//import table.var.*;
+//import table.type.*;
+//import table.procedure.*;
+
+import java.util.*;
+import flowchart.*;
+import flowchart.Module;
+
+/**
+ * 语法和语义Parser
+ */
+public class Parser {
+    /** lookahead */
+    private Symbol lookahead;
+    /** scanner */
+    private scanner scanner;
+    private Module oberonModule;
+    /** if层数 */
+    private int ifCount;
+    /** while层数 */
+    private int whileCount;
+
+    /**
+     * 构造函数，获取第一个lookahead
+     * @param _scanner scanner
+     * @throws java.io.IOException IOException
+     * @throws LexicalException LexicalException
+     */
+    public Parser(scanner _scanner, Module _module) throws Exception {
+        scanner = _scanner;
+        oberonModule = _module;
+        lookahead = scanner.next_token();
+    }
+
+    /**
+     * 获取当前lookahead的行号
+     * @return int, 行号
+     */
+    public int getLine() {
+        return lookahead.getLine();
+    }
+
+    /**
+     * 获取当前lookahead的列号
+     * @return int, 列号
+     */
+    public int getColumn() {
+        return lookahead.getColumn();
+    }
+
+    /**
+     * parse入口
+     * @return 代码的复杂度
+     * @throws java.io.IOException IOException
+     */
+    public void parse() throws Exception {
+        modulesBlock();
+        System.out.print("compile done\n");
+    }
+
+    /**
+     * 匹配一个lookahead, 并获取下一个lookahead
+     * @param token 待匹配的token
+     * @return String, lookahead's value
+     */
+    private String match(String token) throws Exception{
+        if (lookahead.getToken().equals(token)) {
+            String value = lookahead.getValue();
+            lookahead = scanner.next_token();
+            return value;
+        }
+        switch (token) {
+            case "(":
+                throw new MissingLeftParenthesisException();
+            case ")":
+                throw new MissingRightParenthesisException();
+            case "IDENTIFIER":
+            case "NUMBER":
+                throw new MissingOperandException();
+            default:
+                System.out.println("期望 \'" + token + "\', but not.");
+                throw new SyntacticException();
+        }
+    }
+
+    /**
+     * 判断lookahead是不是token
+     * @param token 待判断的字符串
+     * @return 是否匹配成功
+     */
+    private boolean is(String token) {
+        return lookahead.getToken().equals(token);
+    }
+
+    /**
+     * modulesBlock
+     * @return complexity
+     */
+    private int modulesBlock() throws Exception {
+
+        match("MODULE");
+        String id1 = match("IDENTIFIER");
+        match(";");
+        int e1 = declarations();
+        int e2 = beginStatementSequence();
+        match("END");
+        String id2 = match("IDENTIFIER");
+        match(".");
+        if (is("_")) {
+            System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+            System.out.println("SyntacticException : 期望 EOF, but not.");
+        }
+        return e1 + e2;
+    }
+
+    /**
+     * beginStatementSequence
+     * @return complexity
+     */
+    private int beginStatementSequence() throws Exception {
+        if (is("BEGIN")) {
+            match("BEGIN");
+            int e = statementSequence();
+            return e;
+        }
+        return 0;
+    }
+
+    /**
+     * declarations
+     * @return complexity
+     */
+    private int declarations() throws Exception {
+        int e1 = constBlock();
+        int e2 = typeBlock();
+        int e3 = varBlock();
+        int e4 = procedureDeclarations();
+        return e1 + e2 + e3 + e4;
+    }
+
+    /**
+     * constBlock
+     * @return complexity
+     */
+    private int constBlock() throws Exception {
+
+        if (is("CONST")) {
+            match("CONST");
+            int e = identifierExpressions();
+            return 5 + e;
+        }
+        return 0;
+    }
+
+    /**
+     * identifierExpressions
+     * @return complexity
+     */
+    private int identifierExpressions() throws Exception {
+
+        if (is("IDENTIFIER")) {
+            int e1 = identifierExpression();
+            int e2 = identifierExpressions();
+            return e1 + e2;
+        }
+        return 0;
+    }
+
+    /**
+     * identifierExpression
+     * @return complexity
+     */
+    private int identifierExpression() throws Exception {
+        String id = match("IDENTIFIER");
+        match("=");
+        expression();
+        match(";");
+        return 0;
+    }
+
+    /**
+     * typeBlock
+     * @return complexity
+     */
+    private int typeBlock() throws Exception {
+
+        if (is("TYPE")) {
+            match("TYPE");
+            int e = identifierTypes();
+            return 10 + e;
+        }
+        return 0;
+    }
+
+    /**
+     * identifierTypes
+     * @return complexity
+     */
+    private int identifierTypes() throws Exception {
+
+        if (is("IDENTIFIER")) {
+            int e1 = identifierType();
+            int e2 = identifierTypes();
+            return e1 + e2;
+        }
+        return 0;
+    }
+
+    /**
+     * identifierType
+     * @return complexity
+     */
+    private int identifierType() throws Exception {
+
+        String id = match("IDENTIFIER");
+        match("=");
+        types();
+        match(";");
+        return 0;
+    }
+
+    /**
+     * varBlock
+     * @return complexity
+     */
+    private int varBlock() throws Exception {
+
+        if (is("VAR")) {
+            match("VAR");
+            int e = identifierListTypes();
+            return e;
+        }
+        return 0;
+    }
+
+    /**
+     * identifierListTypes
+     * @return complexity
+     */
+    private int identifierListTypes() throws Exception {
+
+        if (is("IDENTIFIER")) {
+            int e1 = identifierListType();
+            int e2 = identifierListTypes();
+            return e1 + e2;
+        }
+        return 0;
+    }
+
+    /**
+     * identifierListType
+     * @return complexity
+     */
+    private int identifierListType() throws Exception {
+
+        ArrayList <String> vars = identifierList();
+        match(":");
+        types();
+        match(";");
+
+        return 0;
+    }
+
+    /**
+     * procedureDeclarations
+     * @return complexity
+     */
+    private int procedureDeclarations() throws Exception {
+
+        if (is("PROCEDURE")) {
+            int e1 = procedureDeclarationBlock();
+            int e2 = procedureDeclarations();
+            return e1 + e2;
+        }
+        return 0;
+    }
+
+    /**
+     * procedureDeclarationBlock
+     * @return complexity
+     */
+    private int procedureDeclarationBlock() throws Exception {
+
+        int e = procedureDeclaration();
+        match(";");
+        return e;
+    }
+
+    /**
+     * procedureDeclaration
+     * @return complexity
+     */
+    private int procedureDeclaration() throws Exception {
+        int e1 = procedureHeading();
+        match(";");
+        int e2 = procedureBody();
+        return e1 + e2;
+    }
+
+    /**
+     * procedureHeading
+     * @return complexity
+     */
+    private int procedureHeading() throws Exception {
+
+        match("PROCEDURE");
+        String id = match("IDENTIFIER");
+        int e = formalParametersBlock();
+        return 20 + e;
+    }
+
+    /**
+     * procedureBody
+     * @return complexity
+     */
+    private int procedureBody() throws Exception {
+
+        int e1 = declarations();
+        int e2 = beginStatementSequence();
+
+        match("END");
+        match("IDENTIFIER");
+
+        return e1 + e2;
+    }
+
+    /**
+     * formalParametersBlock
+     * @return complexity
+     */
+    private int formalParametersBlock() throws Exception {
+
+        if (is("(")) {
+            int e = formalParameters();
+            return e;
+        }
+        return 0;
+    }
+
+    /**
+     * formalParameters
+     * @return complexity
+     */
+    private int formalParameters() throws Exception {
+
+        match("(");
+        int e = fpSectionBlock();
+        match(")");
+        return e;
+    }
+
+    /**
+     * fpSectionBlock
+     * @return complexity
+     */
+    private int fpSectionBlock() throws Exception {
+
+        if (is("VAR") || is("IDENTIFIER")) {
+            int e1 = fpSection();
+            int e2 = semiFpSection();
+            return e1 + e2;
+        }
+        return 0;
+    }
+
+    /**
+     * semiFpSection
+     * @return complexity
+     */
+    private int semiFpSection() throws Exception {
+        if (is(";")) {
+            match(";");
+            int e1 = fpSection();
+            int e2 = semiFpSection();
+            return e1 + e2;
+        }
+        return 0;
+    }
+    /**
+     * fpSection
+     * @return complexity
+     */
+    private int fpSection() throws Exception {
+        if (is("VAR"))
+            match("VAR");
+        ArrayList <String> vars = identifierList();
+        match(":");
+        types();
+        return 0;
+    }
+    /**
+     * fpSection
+     * @return pair of (types, complexity)
+     */
+    private void types() throws Exception {
+        if (is("IDENTIFIER")) {
+            String id = match("IDENTIFIER");
+        } else if (is("ARRAY")) {
+            arrayType();
+        } else if (is("RECORD")) {
+            recordType();
+        } else if (is("INTEGER")) {
+            match("INTEGER");
+        } else if (is("BOOLEAN")) {
+            match("BOOLEAN");
+        } else{System.out.println("未识别该类型.");
+            throw new SyntacticException();
+        }
+    }
+    /**
+     * recordType
+     * @return record type
+     */
+    private void recordType() throws Exception {
+        match("RECORD");
+        fieldListBlock();
+        semiFieldLists();
+        match("END");
+    }
+
+    /**
+     * semiFieldLists
+     * @return complexity
+     */
+    private int semiFieldLists() throws Exception {
+        if (is(";")) {
+            match(";");
+            int e1 = fieldListBlock();
+            int e2 = semiFieldLists();
+            return e1 + e2;
+        }
+        return 0;
+    }
+
+    /**
+     * fieldListBlock
+     * @return comlexity
+     */
+    private int fieldListBlock() throws Exception {
+        if (is("IDENTIFIER")) {
+//            ArrayList <String> vars =
+                    identifierList();
+            match(":");
+            types();
+            return 0;
+        }
+        return 0;
+    }
+
+    /**
+     * arrayType
+     * @return array type
+     */
+    private void arrayType() throws Exception {
+        match("ARRAY");
+        expression();
+        match("OF");
+        types();
+    }
+
+    /**
+     * identifierList
+     * @return ArrayList of identifier
+     */
+    private ArrayList <String> identifierList() throws Exception {
+        ArrayList <String> id = new ArrayList<>();
+        id.add(new String(match("IDENTIFIER")));
+        while (is(",")) {
+            match(",");
+            id.add(new String(match("IDENTIFIER")));
+        }
+        return id;
+    }
+
+    /**
+     * statementSequence
+     * @return complexity
+     */
+    private int statementSequence() throws Exception {
+        if (is("IDENTIFIER")) {
+            String id = match("IDENTIFIER");
+            if (is(".") || is("[") || is(":=")) {
+                assignment(id);
+            }
+            else
+                procedureCall(id);
+        } else if (is("IF"))
+            ifStatement();
+        else if (is("WHILE"))
+            whileStatement();
+        else if (is("READ"))
+            readBlock();
+        else if (is("WRITE"))
+            writeBlock();
+        else if (is("WRITELN"))
+            writelnBlock();
+        if (is(";")) {
+            match(";");
+            statementSequence();
+        }
+        return 0;
+    }
+
+    /**
+     * readBlock
+     * @return complexity
+     */
+    private void readBlock() throws Exception {
+        match("READ");
+        actualParametersBlock("READ");
+    }
+
+    /**
+     * writeBlock
+     * @return complexity
+     */
+    private void writeBlock() throws Exception {
+        match("WRITE");
+        actualParametersBlock("WRITE");
+    }
+
+    /**
+     * writelnBlock
+     */
+    private void writelnBlock() throws Exception {
+        match("WRITELN");
+        actualParametersBlock("WRITELN");
+    }
+
+    /**
+     * whileStatement
+     */
+    private int whileStatement() throws Exception {
+        match("WHILE");
+        expression();
+        match("DO");
+        statementSequence();
+        match("END");
+        return 0;
+    }
+
+    /**
+     * ifStatement
+     */
+    private int ifStatement() throws Exception {
+        match("IF");
+        expression();
+        match("THEN");
+        statementSequence();
+        elsifBlock();
+        elseBlock();
+        match("END");
+        return 0;
+    }
+
+    /**
+     * elsifBlock
+     */
+    private int elsifBlock() throws Exception {
+        if (is("ELSIF")) {
+            match("ELSIF");
+            expression();
+            match("THEN");
+            statementSequence();
+            return 0;
+        }
+        return 0;
+    }
+
+    /**
+     * elseBlock
+     */
+    private int elseBlock() throws Exception {
+
+        if (is("ELSE")) {
+            match("ELSE");
+            statementSequence();
+            return 0;
+        }
+        return 0;
+    }
+
+    /**
+     * procedureCall
+     * @param id identifier
+     */
+    private int procedureCall(String id) throws Exception {
+        actualParametersBlock(id);
+        return 0;
+    }
+
+    /**
+     * actualParametersBlock
+     * @param name procedure name
+     */
+    private int actualParametersBlock(String name) throws Exception {
+        int score = 0;
+        if (is("(")) {
+            match("(");
+            if (!is(")")) {
+                expression();
+            }
+            while (!is(")")) {
+                match(",");
+                expression();
+            }
+            match(")");
+        }
+        if (name.equals("READ") || name.equals("WRITE") || name.equals("WRITELN"))
+            return score;
+//        for (int i = list.size() - 1; i >= 0; i--) {
+//            if (list.get(i).getName().equals(name)) {
+//                if (exps.size() != list.get(i).parameterLength()) {
+//                    System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                    System.out.println("SemanticException : ParameterMismatchedException.");
+//                    System.out.println("Except " + list.get(i).parameterLength() + " but " + exps.size());
+//                } else {
+//                    boolean flag = true;
+//                    for (int j = 0; j < exps.size(); j++) {
+//                        flag &= (Types.equal(exps.get(j).getType(), list.get(i).getParameteri(j)));
+//                    }
+//                    if (!flag) {
+//                        System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                        System.out.println("SemanticException : TypeMismatchedException.");
+//                    }
+//                }
+//                return score;
+//            }
+//        }
+
+//        Procedures target = preProcedure.find(name);
+//        if (target == null) {
+//            System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//            System.out.println("SyntacticException : Not found " + name);
+//        } else {
+//            if (exps.size() != target.parameterLength()) {
+//                System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                System.out.println("SemanticException : ParameterMismatchedException.");
+//                System.out.println("Except " + target.parameterLength() + " but " + exps.size());
+//            } else {
+//                boolean flag = true;
+//                for (int j = 0; j < exps.size(); j++) {
+//                    flag &= (Types.equal(exps.get(j).getType(), target.getParameteri(j)));
+//                }
+//                if (!flag) {
+//                    System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                    System.out.println("SemanticException : TypeMismatchedException.");
+//                }
+//
+//            }
+//        }
+        return 0;
+    }
+
+    /**
+     * assignment
+     * @param id identifier
+     */
+    private int assignment(String id) throws Exception {
+        selectorBlock();
+        match(":=");
+        expression();
+        return 0;
+    }
+
+    /**
+     * expression
+     * @return Vars, expression result
+     */
+    private void expression() throws Exception {
+//        Pairs <Vars, Integer> left =
+                usimpleExpression();
+        boolean flag = true;
+        if (is("=")) {
+            match("=");
+            flag = false;
+        }
+        else if (is("#")) {
+            match("#");
+            flag =false;
+        }
+        else if (is("<"))
+            match("<");
+        else if (is(">"))
+            match(">");
+        else if (is("<="))
+            match("<=");
+        else if (is(">="))
+            match(">=");
+        else {
+            return ;
+        }
+//        Pairs <Vars, Integer> right =
+                usimpleExpression();
+//        if (!Vars.sameType(left.first, right.first)) {
+//            System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//            System.out.println("TypeMismatchedException : 表达式两边的类型不一致.");
+//        }
+//        if (flag && !left.first.getType().getType().equals("int")) {
+//            System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//            System.out.println("TypeMismatchedException : 类型需为integer.");
+//        }
+    }
+
+    /**
+     * usimpleExpression
+     * @return Vars, expression result
+     */
+    private void usimpleExpression() throws Exception {
+        if (is("+")) {
+            match("+");
+        }
+        else if (is("-")) {
+            match("-");
+        }
+        simpleExpression();
+    }
+
+    /**
+     * simpleExpression
+     * @return Vars, expression result
+     */
+    private void simpleExpression() throws Exception {
+//        Pairs <Vars, Integer> result =
+                term();
+        while (is("+") || is("-") || is("OR")) {
+            if (is("+")) {
+                match("+");
+//                Pairs <Vars, Integer> another =
+                        term();
+//                if (!Vars.sameType(result.first, another.first)
+//                        || !result.first.getType().getType().equals("int")) {
+//                    System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                    System.out.println("TypeMismatchedException : 表达式的值需为integer类型");
+//                }
+            } else if (is("-")) {
+                match("-");
+//                Pairs <Vars, Integer> another =
+                        term();
+//                if (!Vars.sameType(result.first, another.first)
+//                        || !result.first.getType().getType().equals("int")) {
+//                    System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                    System.out.println("TypeMismatchedException : 表达式的值需为integer类型");
+//                }
+            } else if (is("OR")) {
+                match("OR");
+//                Pairs <Vars, Integer> another =
+                        term();
+//                if (!Vars.sameType(result.first, another.first)
+//                        || !result.first.getType().getType().equals("bool")) {
+//                    System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                    System.out.println("TypeMismatchedException : 表达式的值需为boolean类型");
+//                }
+            }
+        }
+    }
+
+    /**
+     * term
+     * @return Vars, expression result
+     */
+    private void term() throws Exception {
+
+//        Pairs <Vars, Integer> result =
+                factor();
+        while (is("*") || is("DIV") || is("MOD") || is("&")) {
+            if (is("*")) {
+
+                match("*");
+//                Pairs <Vars, Integer> another =
+                        factor();
+//                if (!Vars.sameType(result.first, another.first)
+//                        || !result.first.getType().getType().equals("int")) {
+//                    System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                    System.out.println("TypeMismatchedException : 表达式的值需为integer类型");
+//                }
+            } else if (is("DIV")) {
+
+                match("DIV");
+//                Pairs <Vars, Integer> another =
+                        factor();
+//                if (!Vars.sameType(result.first, another.first)
+//                        || !result.first.getType().getType().equals("int")) {
+//                    System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                    System.out.println("TypeMismatchedException : 表达式的值需为integer类型");
+//                }
+            } else if (is("MOD")) {
+                match("MOD");
+//                Pairs <Vars, Integer> another =
+                        factor();
+//                if (!Vars.sameType(result.first, another.first)
+//                        || !result.first.getType().getType().equals("int")) {
+//                    System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                    System.out.println("TypeMismatchedException : 表达式的值需为integer类型");
+//                }
+            } else if (is("&")) {
+
+                match("&");
+//                Pairs <Vars, Integer> another =
+                        factor();
+//                if (!Vars.sameType(result.first, another.first)
+//                        || !result.first.getType().getType().equals("bool")) {
+//                    System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                    System.out.println("TypeMismatchedException : 表达式的值需为boolean类型");
+//                }
+            }
+        }
+    }
+
+    /**
+     * factor
+     * @return Vars, expression result
+     */
+    private void factor() throws Exception {
+
+        if (is("IDENTIFIER")) {
+            String id = match("IDENTIFIER");
+//            Vars var = findVar(id);
+//            Pairs <Types, Integer> type =
+                    selectorBlock();
+//            while (type.first.getType().equals("type"))
+//                type = new Pairs <Types, Integer>(((TypeType)type.first).getTypeType(), type.second);
+//            return new Pairs <Vars, Integer>(new Vars("", type.first, var.isItConst()), type.second);
+
+        } else if (is("NUMBER")) {
+            match("NUMBER");
+            //return new Pairs <Vars, Integer>(new Vars("", new IntType(), true), 0);
+        } else if (is("(")) {
+            match("(");
+//            Pairs <Vars, Integer> exp =
+                    expression();
+            match(")");
+//            return new Pairs <Vars, Integer>(exp.first, score);
+        } else if (is("~")) {
+            match("~");
+//            Pairs <Vars, Integer> result =
+                    factor();
+//            if (!result.first.getType().getType().equals("bool")) {
+//                System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                System.out.println("TypeMismatchedException : 表达式的值需为boolean类型");
+//            }
+//            return new Pairs <Vars, Integer>(result.first, score);
+        }else {
+            throw new MissingOperandException();
+        }
+
+    }
+
+    /**
+     * selectorBlock
+     * @return Types, select result
+     */
+    private void selectorBlock() throws Exception {
+        while (is(".") || is("[")) {
+            if (is(".")) {
+                match(".");
+                String id = match("IDENTIFIER");
+//                type = ((RecordType)type).findSon(id).getType();
+            } else if (is("[")) {
+                match("[");
+//                Pairs <Vars, Integer> exp =
+                        expression();
+                match("]");
+//                if (!exp.first.getType().getType().equals("int")) {
+//                    System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                    System.out.println("TypeMismatchedException : 表达式的值需为integer类型");
+//                }
+//                if (!type.getType().equals("array")) {
+//                    System.out.println("Error at (" + getLine() + "," + getColumn() + ")");
+//                    System.out.println("TypeMismatchedException: 该变量不为数组");
+//                } else {
+//                    type = ((ArrayType)type).getArrayType();
+//                }
+            }
+        }
+//        return new Pairs <Types, Integer>(type, score);
+    }
+}

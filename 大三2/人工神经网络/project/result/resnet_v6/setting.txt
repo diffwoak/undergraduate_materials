@@ -1,0 +1,12 @@
+milestones=[40,80]	
+lr = 5e-5
+AdamW
+MultiStepLR
+Cross_Entropy
+解冻最后一层layer2和layer3和layer4和fc进行训练
+batch_size = 16
+
+效果有所提升，但一般
+
+下一步：改图片大小为256
+下下一步：改正则化相关系数

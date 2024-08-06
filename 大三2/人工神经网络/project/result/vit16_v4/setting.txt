@@ -1,0 +1,16 @@
+milestones=[10,20,30]	# 对比上一次训练的改动
+lr = 1e-4
+AdamW
+MultiStepLR
+Cross_Entropy
+解冻最后一层self-attention和heads进行训练
+
+
+训练结果没有很大作用，milestones的改动仅仅使训练提前early stop
+
+
+改用SGD进行实验对比，经初步观察，只改动了优化器的初始训练状态就欠佳
+故再做改动，将lr改为5e-5，没有效果，改成5e-4试试
+
+
+

@@ -1,0 +1,17 @@
+milestones=[40,80]	
+lr = 5e-5
+AdamW
+MultiStepLR
+Cross_Entropy
+解冻最后一层layer2和layer3和layer4和fc进行训练
+batch_size = 16
+改回图片大小为224
+gamma 改为 0.1
+weight_decay 改为 1e-3
+
+好像能改的全部改完了，怎么办呢
+改用更大模型试一下吧
+
+	
+	
+

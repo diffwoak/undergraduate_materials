@@ -1,0 +1,94 @@
+开始编写报告
+AdamW优化器，
+Cross_Entropy损失函数，
+MultiStepLR，gamma = 0.1，milestone= [30,60,90]
+
+image_size = 256
+lr = 5e-5
+batch_size = 32
+earlt_stop = 20
+
+vit_b_16 解冻所有atten层和heads层
+
+	acc	loss
+train	0.99958	0.00881
+val	0.81886	0.72742
+test	0.79841
+
+vit_b_16 仅解冻heads层
+训练收敛太慢，估计是初始lr太小，直接改为1e-4试试
+
+久久未收敛，直接使用过程最大结果
+	acc	loss
+train	0.83090	1.05764
+val	0.60601	1.61188
+test	0.61167
+
+vit_b_16 解冻6各attn层和heads层
+	acc	loss
+train	0.99854	0.05924
+val	0.81052	0.76293
+test	0.79720
+
+使用vit_l_16 解冻所有层测试对比
+	acc	loss
+train	1	0.00337
+val	0.80301	0.73746
+test	0.78495
+
+vit_b_16加入mixup+label smoothing
+	acc	loss
+train	0.50980	1.81671
+val	0.81135	1.75183
+test	0.80186
+
+vit_b_16再加入attention_dropout
+	acc	loss
+train	0.52064	2.03016
+val	0.79883	1.68092
+test	0.78167
+
+使用vit_l_16加入0.1dropout试试（不加入mixup。。）
+	acc	loss
+train	1.00000	0.88999
+val	0.81720	1.92869
+test	0.78875
+
+使用vit_l_16加入0.1dropout和mixup
+	acc	loss
+train	0.52231	1.80987
+val	0.78381	1.91113
+test	0.78064
+
+使用vit_l_16加入0.5dropout
+	acc	loss
+train	1	0.90205
+val	0.77880	1.98953
+test	0.75095
+
+
+使用vit_l_16加入0.05dropout
+	acc	loss
+train	1	0.89149
+val	0.81636	1.95303
+test	0.78788
+
+
+使用vit_b_16加入0.05dropout
+	acc	loss
+train	1	0.89585
+val	0.81636	1.70856
+test	0.80169
+
+使用vit_b_16加入0.05dropout再加入mixup
+	acc	loss
+train	0.47769	1.80632
+val	0.80217	1.73835
+test	0.79634
+
+############################################
+更换数据集，使用vit_b_16加入mixup+label smoothing，不加dropout
+	acc	loss
+train	0.51583	1.97945
+val	0.90458	1.20650
+test	0.89522

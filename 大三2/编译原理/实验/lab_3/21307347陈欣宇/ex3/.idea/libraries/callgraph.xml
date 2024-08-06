@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="callgraph">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/callgraph.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

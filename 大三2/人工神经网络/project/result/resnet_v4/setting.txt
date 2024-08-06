@@ -1,0 +1,10 @@
+milestones=[30,60,90]	
+lr = 1e-4
+AdamW
+MultiStepLR
+Cross_Entropy
+解冻最后一层layer2和layer3和layer4和fc进行训练
+
+没有取得更好的效果
+
+下一步：调小学习率和milestones为5e-5和[40,80]

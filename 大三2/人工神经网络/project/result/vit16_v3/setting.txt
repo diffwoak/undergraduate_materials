@@ -1,0 +1,22 @@
+milestones=[30,60,90]
+lr = 1e-4
+AdamW
+MultiStepLR
+Cross_Entropy
+解冻最后一层self-attention和heads进行训练
+
+并将数据预处理改为：（图片大小）（原本是resize512再crop到224或是其他大小）
+train_transformer = transforms.Compose([
+            tr.ToCVImage(),
+            tr.Resize(256),# resize一般为crop的1.1到1.3倍
+            tr.RandomHorizontalFlip(),
+            tr.RandomResizedCrop(size=self.image_size=224),
+            tr.ToTensor(),
+            tr.Normalize(self.train_mean,self.train_std),
+        ])
+
+在此基础上改进：
+①milestones可设小，因为acc和loss都在15epoch左右就接近收敛了
+可保持原来的lr，将milestones改为[10,20,30]对比
+②在①的基础上，改用SGD进行实验对比
+

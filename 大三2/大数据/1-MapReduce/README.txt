@@ -1,0 +1,4 @@
+实现算法：自然连接
+
+点击NaturalJoin项目根目录下的 NaturalJoin.bat 快速运行程序，生成output目录
+运行后可点击input目录内文件以及output目录内生成的part-r-00000查看结果

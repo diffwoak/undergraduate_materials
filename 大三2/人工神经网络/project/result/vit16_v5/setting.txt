@@ -1,0 +1,16 @@
+milestones=[10,20,30]	# 对比上一次训练的改动
+lr = 5e-4
+SGD
+MultiStepLR
+Cross_Entropy
+解冻最后一层self-attention和heads进行训练
+
+可以看出使用SGD以及改lr后的性能要比使用AdamW时要弱
+
+
+
+下一步：
+仅解冻heads层进行训练，使用AdamW和lr=1e-4
+
+
+

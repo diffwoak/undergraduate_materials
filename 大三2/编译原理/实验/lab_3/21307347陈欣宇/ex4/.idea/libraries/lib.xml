@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/callgraph.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/java-cup-11b-runtime.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jflex-full-1.8.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/java-cup-11b.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jgraph.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/flowchart.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

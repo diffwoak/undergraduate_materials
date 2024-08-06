@@ -1,0 +1,5 @@
+milestones=[30,60,90]
+lr = 5e-5
+SGD
+MultiStepLR
+Cross_Entropy

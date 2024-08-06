@@ -1,0 +1,17 @@
+milestones=[40,80]	
+lr = 5e-5
+AdamW
+MultiStepLR
+Cross_Entropy
+解冻最后一层layer2和layer3和layer4和fc进行训练
+batch_size = 16
+改图片大小为256
+
+改动图片大小前后的准确率没有明显区别，因此将图片大小改回224
+
+下一步：改正则化相关系数，现在观察loss图有过拟合的感觉
+
+	weight_decay 改为 1e-3
+	gamma 改为 0.1
+
+先改gamma吧，一步步来，正则化留到下一步

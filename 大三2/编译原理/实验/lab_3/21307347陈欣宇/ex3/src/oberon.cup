@@ -1,0 +1,186 @@
+/* oberon-0 */
+import java_cup.runtime.*;
+import exceptions.*;
+import callgraph.*;
+import java.util.*;
+
+parser code {:
+    /** 自定义扫描器*/
+    protected scanner s;
+    /** 绘制调用图类*/
+    protected CallGraph graph;
+    /** 存储调用过程语句*/
+    private ArrayList<String> callList;
+    /** 存储调用的过程名*/
+    private ArrayList<String> proList;
+    /** 调用过程语句的数量*/
+    protected int CallCount = 0;
+    /** 当前已处理调用过程语句的数量*/
+    protected int currentStart = 0;
+    /** 构造函数*/
+    Parser(scanner s,CallGraph graph){
+        this.s = s;
+        this.graph = graph;
+        this.callList = new ArrayList<>();
+        this.proList = new ArrayList<>();
+    }
+    /** 返回当前扫描token的行*/
+    public int getLine() {
+      return s.getLine();
+    }
+    /** 返回当前扫描token的列*/
+    public int getColumn() {
+      return s.getColumn();
+    }
+    /** 添加调用过程语句*/
+    public void addCall(String pro,String call){
+        this.proList.add(pro);
+        this.callList.add(call);
+//        System.out.print(pro + " " + call + " " + CallCount + "\n");
+        this.CallCount = CallCount + 1;
+    }
+    /** 处理调用过程语句*/
+    public void dealCall(String procedure) throws Exception{
+        for(int i = currentStart; i < CallCount;i++){
+            graph.addCallSite("c"+ i, procedure, callList.get(i));
+//            System.out.print("edge: c"+ i + " to "+  proList.get(i) + "\n");
+            graph.addEdge("c"+ i, proList.get(i));
+        }
+        currentStart = CallCount;
+//        System.out.print(procedure + " compile done\n");
+    }
+:}
+
+/* define how to connect to the scanner! */
+init with {: s.init(); :};
+scan with {: return s.next_token(); :};
+
+/* Terminals (tokens returned by the scanner). */
+terminal String MODULE, BEGIN, END, CONST, TYPE, VAR, PROCEDURE,  ARRAY, OF, RECORD,IF, THEN, ELSIF, ELSE,WHILE, DO,LESS, LEQ, GREAT, GEQ, ADD, UADD, MINUS, UMINUS, OR, MUL, DIV, MOD, AND, NOT, SEMI, DOT, EQUAL, COLON, LEFTPAR, RIGHTPAR, COMMA, COLONEQ, NOTEQUAL,LEFTMIDPAR, RIGHTMIDPAR,IDENTIFIER,NUMBER, INT, BOOL, READ, WRITE, WRITELN;
+/* Non terminals */
+non terminal String modulesBlock, beginStatementSequenceBlock, statementSequence,declarations, constBlock,ifStatement,whileStatement,elsifStatement, elsifBlock,identifierExpressionBlock, identifierExpression,typeBlock, identifierTypeBlock, identifierType, varBlocks,identifierListTypeBlock, identifierListType, procedureDeclarations,procedureDeclarationBlock, procedureDeclaration, procedureBody,procedureHeading, formalParametersBlock, formalParameters,fpSectionBlock, semiFpSectionsBlock, semiFpSection, fpSection ,varBlock, types, recordType, semiFieldListBlock, semiFieldList,fieldListBlock, fieldList, arrayType, identifierList,commaIdentifierBlock, commaIdentifier,semiStatementBlock, semiStatement, statementBlock, statement,elseBlock, elseStatement, procedureCall, actualParametersBlock,actualParameters, expressionBlock, expressions,commaExpressionBlocks, commaExpressionBlock, assignment,expression, usimpleExpression, simpleExpression, term,factor, selectorBlock, selector, readBlock,writeBlock, writelnBlock;
+/* Precedences */
+precedence left ADD, UADD, MINUS, UMINUS, OR, MUL, DIV, MOD, AND;
+/* The grammar rules */
+// 1
+modulesBlock    ::= MODULE IDENTIFIER:e SEMI declarations beginStatementSequenceBlock END IDENTIFIER DOT
+                    {:dealCall(e);graph.show(); :};
+beginStatementSequenceBlock  ::= BEGIN statementSequence | ;
+// 2
+declarations    ::= constBlock typeBlock varBlocks procedureDeclarationBlock;
+constBlock  ::= CONST identifierExpressionBlock | ;
+identifierExpressionBlock   ::= identifierExpressionBlock identifierExpression | ;
+identifierExpression    ::= IDENTIFIER EQUAL expression SEMI ;
+typeBlock   ::= TYPE identifierTypeBlock | ;
+identifierTypeBlock ::= identifierTypeBlock identifierType | ;
+identifierType  ::= IDENTIFIER EQUAL types SEMI ;
+varBlocks    ::= VAR identifierListTypeBlock | ;
+identifierListTypeBlock ::= identifierListTypeBlock identifierListType | ;
+identifierListType  ::= identifierList COLON types SEMI ;
+procedureDeclarationBlock   ::= procedureDeclarationBlock:e1 procedureDeclarations:e2 | ;
+procedureDeclarations   ::= procedureDeclaration SEMI ;
+// 3
+procedureDeclaration    ::= procedureHeading:e SEMI procedureBody
+                        {: graph.addProcedure(e, e);dealCall(e); :};
+// 4
+procedureBody   ::= declarations beginStatementSequenceBlock END IDENTIFIER;
+// 5
+procedureHeading    ::= PROCEDURE IDENTIFIER:e formalParametersBlock
+                        {: RESULT = e; :};
+formalParametersBlock   ::= formalParameters | ;
+// 6
+formalParameters    ::= fpSectionBlock RIGHTPAR {: if(true) throw new MissingLeftParenthesisException(); :}
+                      | LEFTPAR fpSectionBlock RIGHTPAR ;
+fpSectionBlock  ::= fpSection semiFpSectionsBlock | ;
+semiFpSectionsBlock  ::= semiFpSectionsBlock semiFpSection | ;
+semiFpSection   ::= SEMI fpSection;
+// 7
+fpSection   ::= varBlock identifierList COLON types ;
+varBlock    ::= VAR | ;
+// 8
+types   ::= IDENTIFIER | arrayType | recordType | INT | BOOL ;
+// 9
+recordType  ::= RECORD fieldListBlock semiFieldListBlock END;
+semiFieldListBlock  ::= semiFieldListBlock semiFieldList |  ;
+semiFieldList   ::= SEMI fieldListBlock ;
+// 10
+fieldListBlock  ::= fieldList |  ;
+fieldList   ::= identifierList COLON types;
+// 11
+arrayType   ::= ARRAY expression OF types ;
+// 12
+identifierList  ::= IDENTIFIER commaIdentifierBlock ;
+commaIdentifierBlock    ::= commaIdentifierBlock commaIdentifier  |  ;
+commaIdentifier ::= COMMA IDENTIFIER  ;
+// 13
+statementSequence   ::= statementBlock semiStatementBlock ;
+semiStatementBlock ::= semiStatementBlock semiStatement | ;
+semiStatement  ::= SEMI statementBlock ;
+// 14
+statementBlock  ::= statement | ;
+statement   ::= assignment | procedureCall | ifStatement | whileStatement| readBlock | writeBlock | writelnBlock ;
+// 15
+whileStatement  ::= WHILE  expression DO statementSequence END  ;
+// 16
+ifStatement ::= IF expression THEN statementSequence elsifBlock elseBlock END  ;
+elsifBlock ::= elsifBlock elsifStatement |  ;
+elsifStatement  ::= ELSIF expression THEN statementSequence ;
+elseBlock   ::= elseStatement | ;
+elseStatement   ::= ELSE statementSequence ;
+// 17
+procedureCall   ::= IDENTIFIER:e1 actualParametersBlock:e2 {:addCall(e1,e1+e2);:};
+actualParametersBlock   ::= actualParameters:e {: RESULT = e; :} |  {: RESULT = ""; :};
+// 18
+actualParameters    ::= LEFTPAR expressionBlock {: if (true) throw new MissingRightParenthesisException(); :}
+                      | LEFTPAR expressionBlock:e RIGHTPAR {: RESULT = "(" + e + ")"; :} ;
+expressionBlock ::= expressions:e {: RESULT = e; :}  |  {: RESULT = ""; :};
+expressions ::= expression:e1 commaExpressionBlocks:e2 {: RESULT = e1 + e2; :} ;
+commaExpressionBlocks   ::= commaExpressionBlocks:e1 commaExpressionBlock:e2 {: RESULT = e1 + e2; :} | {: RESULT = ""; :} ;
+commaExpressionBlock    ::= COMMA expression:e {: RESULT = "," + e; :} ;
+// 19
+assignment  ::= IDENTIFIER selectorBlock COLONEQ expression;
+// 20
+expression  ::= usimpleExpression:e1 EQUAL usimpleExpression:e2 {: RESULT = e1 + "=" + e2; :}
+              | usimpleExpression:e1 NOTEQUAL usimpleExpression:e2 {: RESULT = e1 + "#" + e2; :}
+              | usimpleExpression:e1 LESS usimpleExpression:e2 {: RESULT = e1 + "<" + e2; :}
+              | usimpleExpression:e1 LEQ usimpleExpression:e2 {: RESULT = e1 + "<=" + e2; :}
+              | usimpleExpression:e1 GREAT usimpleExpression:e2 {: RESULT = e1 + ">" + e2; :}
+              | usimpleExpression:e1 GEQ usimpleExpression:e2 {: RESULT = e1 + ">=" + e2; :}
+              | usimpleExpression:e {: RESULT = e; :};
+// 20
+usimpleExpression   ::= simpleExpression:e {: RESULT = e; :}
+                      | ADD simpleExpression:e {: RESULT = "+" + e; :}
+                        %prec UADD
+                      | MINUS simpleExpression:e {: RESULT = "-" + e;:}
+                        %prec UMINUS;
+simpleExpression   ::= term:e {: RESULT = e; :}
+                      | simpleExpression ADD {:if (true) throw new MissingOperandException(); :}
+                      | simpleExpression MINUS {:if (true) throw new MissingOperandException(); :}
+                      | simpleExpression OR {:if (true) throw new MissingOperandException(); :}
+                      | simpleExpression:e1 ADD simpleExpression:e2 {: RESULT = e1 + "+" + e2; :}
+                      | simpleExpression:e1 MINUS simpleExpression:e2 {: RESULT = e1 + "-" + e2; :}
+                      | simpleExpression:e1 OR simpleExpression:e2 {: RESULT = e1 + "OR" + e2; :};
+// 21
+term    ::= term MUL {: if (true) throw new MissingOperandException(); :}
+          | term DIV {: if (true) throw new MissingOperandException(); :}
+          | term MOD {: if (true) throw new MissingOperandException(); :}
+          | term AND {: if (true) throw new MissingOperandException(); :}
+          | term:e1 MUL term:e2 {:  RESULT = e1 + "MUL" + e2; :}
+          | term:e1 DIV term:e2 {:  RESULT = e1 + "DIV" + e2; :}
+          | term:e1 MOD term:e2 {:  RESULT = e1 + "MOD" + e2; :}
+          | term:e1 AND term:e2 {:  RESULT = e1 + "&" + e2; :}
+          | factor factor {: if (true) throw  new MissingOperatorException(); :}
+          | factor:e {:  RESULT = e; :} ;
+// 22
+factor  ::= IDENTIFIER:e1 selectorBlock:e2 {: RESULT = e1 + e2; :}
+          | NUMBER:e {: RESULT = e; :}
+          | LEFTPAR expression:e RIGHTPAR {: RESULT = "(" + e + ")"; :}
+          | NOT factor:e  {: RESULT = "~" + e; :};
+// 23
+selectorBlock   ::= selectorBlock:e1 selector:e2 {: RESULT = e1 + e2; :}
+                  | {: RESULT = ""; :};
+selector    ::= DOT IDENTIFIER:e {: RESULT = "." + e; :} | LEFTMIDPAR expression:e RIGHTMIDPAR {: RESULT = "[" + e + "]";:} ;
+// other
+readBlock ::= READ actualParametersBlock ;
+writeBlock  ::= WRITE actualParametersBlock ;
+writelnBlock::= WRITELN actualParametersBlock ;

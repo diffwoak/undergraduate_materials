@@ -1,0 +1,65 @@
+MODULE FactorialExample;
+
+(* IllegalIntegerException：非法整数异常 *)
+CONST
+  maxNumber = 1A;
+
+TYPE
+  intArray = ARRAY maxNumber OF INTEGER;
+  bool = BOOLEAN;
+
+VAR
+  n, r: INTEGER;
+  factorials: intArray;
+
+(* 计算整数 n 的阶乘 *)
+PROCEDURE Factorial(n: INTEGER);
+VAR
+  result, i: INTEGER;
+BEGIN
+  result := 1;
+  i := 1;
+  WHILE i <= n DO
+    result := result * i;
+    i := i + 1
+  END;
+  WRITE(result);
+END Factorial;
+
+(* 计算组合数 C(n, r) = n! / (r! * (n - r)!) *)
+PROCEDURE Combination(n, r: INTEGER);
+BEGIN
+  Factorial(n);
+  Factorial(r);
+  Factorial(n - r);
+END Combination;
+
+(* 打印数组内容 *)
+PROCEDURE PrintArray(arr: intArray; size: INTEGER);
+VAR
+  i: INTEGER;
+BEGIN
+  i := 0;
+  WHILE i < size DO
+      Factorial(arr[i]);
+  END;
+END PrintArray;
+
+BEGIN
+  (* 输入 n 和 r *)
+  Read(n);
+  Read(r);
+
+  (* 计算并输出组合数 C(n, r) *)
+  Combination(n, r);
+
+  (* 存储从 0 到 maxNumber-1 的阶乘的输入 *)
+  n := 0;
+  WHILE n < maxNumber DO
+        factorials[n] := n + 1
+  END;
+
+  (* 输出阶乘数组 *)
+  PrintArray(factorials, maxNumber)
+
+END FactorialExample.

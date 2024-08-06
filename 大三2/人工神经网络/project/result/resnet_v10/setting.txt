@@ -1,0 +1,18 @@
+milestones=[40,80]	
+lr = 5e-5
+AdamW
+MultiStepLR
+Cross_Entropy
+解冻最后一层layer2和layer3和layer4和fc进行训练
+batch_size = 16
+改回图片大小为224
+gamma 改为 0.1
+weight_decay 改为 1e-3
+
+改用了更大的模型resnext101_64x4d，acc没有什么变化，loss出现后期大幅波动的情况
+
+检查代码区别，下面将模型改为resnext101_32x8d，然后将随机种子改为1试一下
+
+	
+	
+

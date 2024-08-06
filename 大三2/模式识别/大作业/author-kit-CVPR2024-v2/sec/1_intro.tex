@@ -1,0 +1,64 @@
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{OVVP}
+Open-Vocabulary Visual Perception (OVVP) refers to the ability of computer vision systems to recognize and process new objects and concepts beyond a predefined set of vocabulary. Traditional visual perception systems typically rely on fixed vocabularies for object detection and recognition, exhibiting significant limitations when faced with unseen objects. The goal of OVVP is to enhance the system's adaptability and generality in real-world applications by integrating visual and language models, enabling the system to handle an infinitely expanding set of vocabulary. Key techniques for achieving OVVP include:
+
+
+\textbf{Vision-Language Models (VLMs)}
+VLMs establish semantic connections between visual and textual data through joint training, allowing for the understanding and recognition of new vocabulary. For example, the CLIP (Contrastive Language-Image Pretraining) model maps images and text to a common vector space and uses the similarity between image and text embeddings for object recognition and classification. By leveraging large-scale image-text contrastive learning, VLMs have demonstrated excellent performance in open-vocabulary object recognition tasks.
+
+\textbf{Zero-Shot Learning}
+Zero-shot learning is a crucial technique in OVVP, aiming to recognize categories that have not been seen during training. Zero-shot learning utilizes the semantic descriptions of categories (e.g., textual descriptions or attribute information) to map the semantic information of new categories to the visual feature space, enabling the recognition of unseen objects.
+
+
+
+\subsection{Scene Understanding}
+
+
+Scene understanding is a key task in computer vision, aiming to extract meaningful semantic information from images or videos, including object recognition, inference of object relationships, and the semantic structure of the overall scene. Scene understanding involves detecting and classifying individual objects, understanding complex relationships and contexts between objects, and typically requires the completion of the following tasks:
+
+\textbf{Object Detection and Recognition}: Identifying individual objects in images or videos and determining their categories and locations.
+
+\textbf{Scene Classification}: Classifying entire images to identify the scene category they belong to, such as streets, kitchens, forests, etc.
+
+\textbf{Scene Graph Generation (SGG)}: Generating graph structures that describe the objects and their relationships within a scene, where nodes represent objects, and edges represent relationships between objects.
+
+\textbf{Semantic Segmentation}: Classifying each pixel in an image to identify different regions and objects within the image.
+
+\textbf{Instance Segmentation}: Similar to semantic segmentation but further distinguishes between different instances of the same object category within the image.
+
+
+
+
+
+
+
+\subsection{Challenges and Technical Difficulties}
+
+The application of OVVP technology in scene understanding holds great potential but also faces numerous challenges and technical difficulties:
+
+\textbf{Data Annotation and Acquisition}: Training OVVP models requires large-scale, high-quality image-text data. The data annotation process is time-consuming and labor-intensive, often plagued by poor annotation quality and noise. Efficiently acquiring and annotating large-scale multimodal data is a critical challenge.
+
+\textbf{Model Generalization Ability}: Despite the excellent performance of existing VLMs in open-vocabulary object recognition, their generalization ability remains limited when faced with completely unknown or complex scenes and objects.
+
+\textbf{Computational Resources and Efficiency}: Training large-scale VLMs demands significant computational resources and memory, and the efficiency of the inference process also needs optimization. Balancing model performance and computational efficiency is another challenge for the practical application of OVVP technology.
+
+
+\subsection{Overview of the Articles}
+
+This paper discusses the specific application techniques of OVVP in scene understanding based on three significant articles. The overviews of the three articles are as follows:
+
+\textit{From Pixels to Graphs:Open-Vocabulary Scene Graph Generation with Vision-Language Models \cite{li2024frompixels}}:
+
+This paper proposes a method for generating open-vocabulary scene graphs from pixels using VLMs, transforming images into semantically rich scene graphs. This approach enhances scene understanding by enabling the system to generalize over unseen objects and relationships, producing more accurate and comprehensive scene graphs.
+
+\textit{OpenMask3D: Open-Vocabulary 3D Instance Segmentation \cite{takmaz2023openmask3d}}:
+
+This paper presents a method for open-vocabulary 3D instance segmentation, capable of detecting and segmenting unseen object instances in 3D scenes, significantly improving 3D scene understanding. By combining multimodal data and advanced segmentation algorithms, the system achieves high-precision object recognition and segmentation in complex 3D environments.
+
+\textit{OVER-NAV: Elevating Iterative Vision-and-Language Navigation with Open-Vocabulary Detection and Structured Representation \cite{zhao2024overnav}}:
+
+This paper proposes an iterative vision-and-language navigation method combining open-vocabulary detection and structured representation, enhancing the navigation performance of robots in complex environments. Through open-vocabulary detection technology, robots can recognize and understand unseen environmental features and use structured representation for path planning and decision-making.
+
+

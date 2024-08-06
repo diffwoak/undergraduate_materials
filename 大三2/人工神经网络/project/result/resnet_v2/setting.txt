@@ -1,0 +1,11 @@
+milestones=[30,60,90]	
+lr = 1e-4
+AdamW
+MultiStepLR
+Cross_Entropy
+解冻最后一层layer4和fc进行训练
+
+
+将网络改为resnext101_32x8d进行尝试
+
+下一步：解冻第三层

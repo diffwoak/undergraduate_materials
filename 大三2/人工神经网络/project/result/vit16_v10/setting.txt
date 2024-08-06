@@ -1,0 +1,52 @@
+milestones=[40,80]	
+lr = 5e-5
+AdamW
+MultiStepLR
+Cross_Entropy
+解冻最后一层layer2和layer3和layer4和fc进行训练
+batch_size = 16
+改回图片大小为224
+gamma 改为 0.1
+weight_decay 改为 1e-3
+
+改用了更大的模型resnext101_64x4d，acc没有什么变化，loss出现后期大幅波动的情况
+
+检查代码区别，下面将模型改为resnext101_32x8d，然后将随机种子改为1试一下
+
+依旧没有什么变化
+
+试一下别人的数据预处理
+
+还真行，有79%了，但是早停了，下一步将图片再次改为256做比较
+
+改完图片大小有80%了，但是epoch=30前就停下来了
+可以将milestones改小，改回[20,40,60]试试
+
+效果很不错
+
+这是vit_b_16 解冻一层的{'Net parameter number Total': 85998536, 'Trainable': 2516168}
+	解冻2层的{'Net parameter number Total': 85998536, 'Trainable': 4878536}
+	解冻3层的{'Net parameter number Total': 85998536, 'Trainable': 7240904}
+	解冻4层的{'Net parameter number Total': 85998536, 'Trainable': 9603272}
+	解冻6层的{'Net parameter number Total': 85998536, 'Trainable': 14328008}
+	解冻8层的{'Net parameter number Total': 85998536, 'Trainable': 19052744}
+	解冻12层的{'Net parameter number Total': 85998536, 'Trainable': 28502216}
+这是resnext101_32x8d解冻2、3、4层的{'Net parameter number Total': 87152136, 'Trainable': 86721736}	
+
+vit_b_16解冻12层的自注意层参数都远不及resnext101_32x8d，因此直接尝试解冻12层，其他参数暂与resnet保持一致
+
+下一步：补充运行resnet只解冻第4层的结果，然后尝试使用更大的vit模型
+只解冻第4层和vit_b_16全解冻差不多{'Net parameter number Total': 87152136, 'Trainable': 29155528}
+
+下一步：尝试更大的vit模型 vit_l_16 
+{'Net parameter number Total': 303568072, 'Trainable': 50585800}
+训练参数好像还没resnext101_32x8d多，但是总量很大，所以速度相对较慢
+
+训练结果不如b_16，检查过程发现在epoch=15左右出现颠簸，考虑其是否是偶然因素，决定再运行一遍
+
+稍微好了一点，决定在milestone=10左右做出改进，也就是[10,20,30]
+
+调小之后异常的平静没有波动，当验证集正确率一直保持在0.78左右，说明可能陷入局部最优
+尝试使用余弦退火学习策略
+lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+                optimizer, 5, T_mult=2)

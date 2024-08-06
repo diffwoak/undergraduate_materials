@@ -1,0 +1,14 @@
+milestones=[10,20,30]	# 对比上一次训练的改动
+lr = 1e-4
+AdamW
+MultiStepLR
+Cross_Entropy
+解冻heads进行训练
+
+
+下一步：
+x 把milestones改大一点[30,60,90]
+✔ 先训练resnet
+
+
+

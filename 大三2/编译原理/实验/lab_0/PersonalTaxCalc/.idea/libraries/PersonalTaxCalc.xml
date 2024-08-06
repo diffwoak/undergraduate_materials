@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="PersonalTaxCalc">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/out/artifacts/PersonalTaxCalc_jar/PersonalTaxCalc.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
